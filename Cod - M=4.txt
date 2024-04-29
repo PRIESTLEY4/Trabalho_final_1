@@ -1,0 +1,50 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import rayleigh
+from scipy.stats import gaussian_kde
+
+
+ne = 1   # Eficiência da colheita de energia
+M = 4    # Número de nós
+num_amostras = 10000  # Número de amostras
+
+# Simulação das amostras dos canais
+h1 = np.random.rayleigh(scale=1, size=num_amostras)
+h2 = np.random.rayleigh(scale=1, size=num_amostras)
+h3 = np.random.rayleigh(scale=1, size=num_amostras)
+h4 = np.random.rayleigh(scale=1, size=num_amostras)
+
+# Calculando a soma dos quadrados de h1, h2, h3 e h4
+htotal = h1**2 + h2**2 + h3**2 + h4**2
+
+# Calculando epsilon_SA^0
+epsilon_SA_0 = (ne / M) * htotal
+
+# Parâmetro de escala da distribuição Rayleigh
+sigma = 1
+
+# Simulação das amostras da energia colhida
+energia_colhida_simulada = np.random.rayleigh(scale=sigma, size=num_amostras)
+
+# Criando um intervalo de valores para x
+x = np.linspace(0, max(epsilon_SA_0), 1000)
+
+# Calculando a PDF de Rayleigh teórica
+pdf_rayleigh = rayleigh.pdf(x, scale=sigma)
+
+# Estimando a PDF de Monte Carlo simulada
+kde = gaussian_kde(energia_colhida_simulada)
+pdf_monte_carlo = kde(x)
+pdf_monte_carlo = pdf_monte_carlo / np.trapz(pdf_monte_carlo, x)  # Normalização
+
+# Plotando a PDF de Rayleigh teórica
+plt.plot(x, pdf_rayleigh, color='black', linestyle='-', label='PDF de Rayleigh Teórica')
+
+# Plotando a PDF de Monte Carlo simulada
+plt.plot(x, pdf_monte_carlo, color='red', linestyle='-', label='PDF de Monte Carlo Simulada')
+
+plt.xlabel('x')
+plt.ylabel('Densidade de Probabilidade')
+plt.legend()
+plt.grid(True)
+plt.show()
